@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+
+<script>
+    let apocalypses = [];
+
+    window.onload = function () {
+        var today = new Date();
+        var dd = String(today.getDate()).padStart(2, '0'); // Day
+        var mm = String(today.getMonth() + 1).padStart(2, '0'); // Month
+        var yyyy = today.getFullYear(); // Year
+        var yminus30 = today.getFullYear - 30; // good a starting point as any
+
+        var birthDateControl = document.getElementById("birthDate");
+
+        birthDateControl.value = yyyy - 30 + '-' + mm + '-' + dd;
+        birthDateControl.min = yyyy - 200 + '-' + mm + '-' + dd;
+        birthDateControl.max = yyyy + '-' + mm + '-' + dd;
+
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        apocalypses = await loadRecords('./apocalyptic_events.json');
+    });
+
+    async function loadRecords(url) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const records = await response.json();
+            return records;
+        } catch (err) {
+            console.error('Error loading JSON file:', err);
+            return [];
+        }
+    }
+
+    function btnCalculate() {
+        var birthDateControl = document.getElementById("birthDate");
+        var birthDate = new Date(birthDateControl.value);
+
+        const filtered = apocalypses.filter(record => new Date(record.date) >= birthDate
+            && new Date(record.date) <= new Date());
+
+        // If nothing matches
+        if (filtered.length === 0) {
+            document.getElementById("lblApocalypti").textContent = "0";
+            document.getElementById("theList").innerHTML = "Somehow you haven't been through a single apocalypse yet. You must be, like, <i>really</i> young.";
+        } else {
+            document.getElementById("lblApocalypti").textContent = filtered.length;
+            let html = '<table border="1" cellpadding="6" cellspacing="0">';
+            //html += '<thead><tr><th>Date</th><th>Claimants</th><th>Description</th></tr></thead>';
+            html += '<tbody>';
+
+            filtered.forEach(record => {
+                html += '<tr><td>';
+                html += `<b>date</b>: ${record.date}<br />`;
+                html += `<b>claimants</b>: ${record.claimants}<br />`;
+                html += `<b>description</b>: ${record.description}<br />`;
+                html += '</td></tr>';
+            });
+            html += '</tbody></table>';
+            document.getElementById("theList").innerHTML = html;
+        }
+
+        document.getElementById("divResults").style = "visibility:visible";
+    }
+
+</script>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8" />
+    <title>The Incredible Apocalyptometer(tm)</title>
+</head>
+
+<body>
+    <p style="text-align: center;">The Incredible</p>
+    <div style="text-align:center; width:100%">
+        <span style="text-align: center; font-size: 5em; vertical-align: top;">Apocalyptometer</span><span
+            style="vertical-align: text-top;"><sup>(tm)</sup></span>
+    </div>
+    <p style="text-align: center;"></p>
+    <p style="text-align: center;">"Because it's always the End of the World Somewhere"</p>
+    <p style="text-align: center;"></p>
+    <p style="text-align: left;">Let's face it, dear friends, the world is teetering on the brink of disaster, and
+        pretty much always has been. But fear not! You are a survivor&mdash;yes, you! Don't believe me? Merely enter
+        your date of birth below, and discover how many apocalyptic predictions you have survived thus far; it's
+        probably more than you think!</p>
+    <p style="text-align: left;">(Totally cribbed from <a href="https://en.wikipedia.org/wiki/List_of_dates_predicted_for_apocalyptic_events">Wikipedia</a>)</p>
+    <p style="text-align: left;">
+        Date of birth:&nbsp;
+        <input type="date" id="birthDate" />
+        &nbsp;
+        <input type="submit" id="btnGo" value="Gimme the bad news" onclick="btnCalculate()" />
+    </p>
+
+    <p style="text-align: left;"></p>
+    <p style="text-align: left;"></p>
+
+    <div style="visibility: collapse;" id="divResults">
+        <div style="text-align:center; width:100%">
+            <span style="text-align: center;">Congratulations! You've survived</span>
+            <h1 style="text-align: center; font-size: 5em;" id="lblApocalypti"></h1>
+            <div style="align-content: center;">
+                <span style="text-align: center; font-size: larger;">Apocalypses</span><br />
+                <span style="text-align: center; font-size: xx-small">(apocalypti? apocalyptae?)</span></p>
+            </div>
+        </div>
+        <div id="theList"></div>
+    </div>
+</body>
+
+</html>
