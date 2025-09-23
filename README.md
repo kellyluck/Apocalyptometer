@@ -9,4 +9,6 @@ Forthcoming stuffandjunk:
 * A random Apocalypse-of-the-Day
 * An "on this day" thingy
 * Or, barring any serious world-ending on a given day, maybe some trivia. I dunno.
-* Open to suggestions /nods toward Issues tab/
+* Open to suggestions <i>nods toward Issues tab<i>
+
+Anyway, pretty much straightforward as it gets. Single HTML page w/javascript included, plus the JSON file for the data. Enjoy.
