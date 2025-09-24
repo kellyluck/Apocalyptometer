@@ -8,18 +8,26 @@
         var dd = String(today.getDate()).padStart(2, '0'); // Day
         var mm = String(today.getMonth() + 1).padStart(2, '0'); // Month
         var yyyy = today.getFullYear(); // Year
-        var yminus30 = today.getFullYear - 30; // good a starting point as any
 
         var birthDateControl = document.getElementById("birthDate");
 
-        birthDateControl.value = yyyy - 30 + '-' + mm + '-' + dd;
-        birthDateControl.min = yyyy - 200 + '-' + mm + '-' + dd;
+        birthDateControl.value = yyyy - 30 + '-' + mm + '-' + dd; // good as any
+        birthDateControl.min = yyyy - 200 + '-' + mm + '-' + dd; // yer ass ain't over 200. Shuddup.
         birthDateControl.max = yyyy + '-' + mm + '-' + dd;
-
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
         apocalypses = await loadRecords('./apocalyptic_events.json');
+
+        var otd = onThisDay();
+        if (otd !== "") {
+            document.getElementById("triviaTitle").textContent="This Day in Apocalyptic History";
+            document.getElementById("trivia").innerHTML=new Date(otd.date).toLocaleDateString() + "<br />" + otd.claimants + "<br />" + otd.description;
+        } else {
+            trivia=randomOne();
+            document.getElementById("triviaTitle").textContent="Your Random-Apocalypse-of-the-Whenever";
+            document.getElementById("trivia").innerHTML=new Date(trivia.date).toLocaleDateString() + "<br />" + trivia.claimants + "<br />" + trivia.description;
+        }
     });
 
     async function loadRecords(url) {
@@ -48,12 +56,11 @@
         } else {
             document.getElementById("lblApocalypti").textContent = filtered.length;
             let html = '<table border="1" cellpadding="6" cellspacing="0">';
-            //html += '<thead><tr><th>Date</th><th>Claimants</th><th>Description</th></tr></thead>';
             html += '<tbody>';
 
             filtered.forEach(record => {
                 html += '<tr><td>';
-                html += `<b>date</b>: ${record.date}<br />`;
+                html += `<b>date</b>: ${new Date(record.date).toLocaleDateString()}<br />`;
                 html += `<b>claimants</b>: ${record.claimants}<br />`;
                 html += `<b>description</b>: ${record.description}<br />`;
                 html += '</td></tr>';
@@ -63,6 +70,27 @@
         }
 
         document.getElementById("divResults").style = "visibility:visible";
+    }
+
+    function onThisDay() {
+        var otd = "";
+        var todayMonth = new Date().getMonth() + 1; // because getMonth() is 0-based for god-knows-what reason
+        var todayDay = new Date().getDate(); // not getDate() though. That would be *consistent*.
+
+        const filtered = apocalypses.filter(record => new Date(record.date).getMonth == todayMonth
+            && new Date(record.date).getDate == todayDay);
+
+        if (filtered.length === 0) return "";
+
+        index = Math.floor(Math.random() * filtered.length);
+
+        return filtered[index];
+    }
+
+    function randomOne() {
+        index = Math.floor(Math.random() * apocalypses.length);
+
+        return apocalypses[index];
     }
 
 </script>
@@ -87,7 +115,15 @@
         pretty much always has been. But fear not! You are a survivor&mdash;yes, you! Don't believe me? Merely enter
         your date of birth below, and discover how many apocalyptic predictions you have survived thus far; it's
         probably more than you think!</p>
-    <p style="text-align: left;">(Totally cribbed from <a href="https://en.wikipedia.org/wiki/List_of_dates_predicted_for_apocalyptic_events">Wikipedia</a>)</p>
+    <p />
+        <div style="border: 2px solid; border-color: red; width: 50%; margin: auto; text-align: center; padding: 10px;">
+            <span id="triviaTitle" style="font-weight: bold;"></span>
+            <br /><br />
+            <span id="trivia"></span>
+        </div>
+    <p />
+    <p style="text-align: left;">(Totally cribbed from <a
+            href="https://en.wikipedia.org/wiki/List_of_dates_predicted_for_apocalyptic_events">Wikipedia</a>)</p>
     <p style="text-align: left;">
         Date of birth:&nbsp;
         <input type="date" id="birthDate" />
